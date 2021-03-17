@@ -1,6 +1,6 @@
 const superagent = require("superagent");
 const Discord = require("discord.js");
-const webhook = new Discord.WebhookClient("821823410228822057", "6OdRhxOmYOcDEv8MFCVueucg3OI3n-DNMbksg8jRkuWtXFIHRrfyKuEQ4BLRY2dGd4ED");
+const webhook = new Discord.WebhookClient("webook id", "webhook token");
 const fs = require("fs");
 
 function loadJSON(filename = '') {
