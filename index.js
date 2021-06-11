@@ -15,6 +15,22 @@ function saveJSON(filename = '', json = '') {
     return fs.writeFileSync(filename, JSON.stringify(json, null, 2))
 }
 
+function toInsert(name) {
+    let loaded = loadJSON("LoggedCreators.json")
+    let toIncrement = 0
+    let found = false
+    loaded.forEach(value => {
+        if (Object.keys(value)[0] === name) return found = true
+        if (!found) toIncrement++
+    })
+    if (!found) {
+        loaded.push({ [name]: { "timesLogged": 1, "timePassed": 0 } })
+    } else {
+        loaded[toIncrement][name]["timesLogged"] = loaded[toIncrement][name]["timesLogged"] + 1
+    }
+    saveJSON("LoggedCreators.json", loaded)
+}
+
 setInterval(async () => {
     await superagent.get("https://search.roblox.com/catalog/json?CatalogContext=2&Category=6&SortType=3&ResultsPerPage=20").then(res => {
         res = res.body
@@ -56,6 +72,7 @@ setInterval(async () => {
 
                 logged.push(element.AssetId)
                 saveJSON("Logged.json", logged)
+                toInsert(element.Creator)
             } catch (error) {
                 console.error('Error trying to send: ', error)
             }
@@ -63,6 +80,36 @@ setInterval(async () => {
         })
     })
 }, 5000)
+
+setInterval(() => {
+    let loaded = loadJSON("LoggedCreators.json")
+    let toIncrement = 0
+    loaded.forEach(value => {
+        if (loaded[toIncrement][Object.keys(value)[0]]["timePassed"] < 15) {
+            loaded[toIncrement][Object.keys(value)[0]]["timePassed"] = loaded[toIncrement][Object.keys(value)[0]]["timePassed"] + 1
+        } else if (loaded[toIncrement][Object.keys(value)[0]]["timePassed"] >= 15) {
+            loaded.splice(toIncrement, 1)
+        }
+        saveJSON("LoggedCreators.json", loaded)
+        toIncrement++
+    });
+}, 1000);
+
+setInterval(() => {
+    let loaded = loadJSON("LoggedCreators.json")
+    let blacklisted = loadJSON("Blacklisted.json")
+    let toIncrement = 0
+    loaded.forEach(value => {
+        if (loaded[toIncrement][Object.keys(value)[0]]["timesLogged"] >=5 && loaded[toIncrement][Object.keys(value)[0]]["timePassed"] <= 15) {
+            loaded.splice(toIncrement, 1)
+            saveJSON("LoggedCreators.json", loaded)
+            blacklisted.push(Object.keys(value)[0])
+            saveJSON("Blacklisted.json", blacklisted)
+            console.log(`${Object.keys(value)[0]} has been blacklisted for spamming`)
+        }
+        toIncrement++
+    })
+}, 1000);
 
 setInterval(() => {
     saveJSON("Logged.json", [])
