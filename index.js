@@ -100,7 +100,7 @@ setInterval(() => {
     let blacklisted = loadJSON("Blacklisted.json")
     let toIncrement = 0
     loaded.forEach(value => {
-        if (loaded[toIncrement][Object.keys(value)[0]]["timesLogged"] >=5 && loaded[toIncrement][Object.keys(value)[0]]["timePassed"] <= 15) {
+        if (loaded[toIncrement][Object.keys(value)[0]]["timesLogged"] >=4 && loaded[toIncrement][Object.keys(value)[0]]["timePassed"] <= 15) {
             loaded.splice(toIncrement, 1)
             saveJSON("LoggedCreators.json", loaded)
             blacklisted.push(Object.keys(value)[0])
